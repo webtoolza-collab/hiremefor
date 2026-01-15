@@ -1,0 +1,620 @@
+<project_specification>
+  <project_name>Hire Me For</project_name>
+
+  <overview>
+    A marketplace platform connecting skilled workers (plumbers, taxi drivers, etc.) with members of the public who need their services. Skilled workers register with phone verification via SMS, create detailed profiles showcasing their skills and experience, and manage their reputation through a rating moderation system. The public can search for workers by skill and area without registration, view profiles, and submit ratings.
+  </overview>
+
+  <technology_stack>
+    <frontend>
+      <framework>React</framework>
+      <styling>CSS with modern design principles</styling>
+      <ui_components>Autocomplete dropdowns for skills and areas</ui_components>
+    </frontend>
+    <backend>
+      <runtime>Node.js</runtime>
+      <database>MySQL</database>
+      <sms_integration>BulkSMS.com API (https://www.bulksms.com/developer/)</sms_integration>
+    </backend>
+    <communication>
+      <api>REST API</api>
+    </communication>
+  </technology_stack>
+
+  <prerequisites>
+    <environment_setup>
+      - Node.js 18+ installed
+      - MySQL 8.0+ installed and running
+      - BulkSMS.com API credentials configured
+      - Environment variables for database connection and SMS API
+    </environment_setup>
+  </prerequisites>
+
+  <feature_count>116</feature_count>
+
+  <security_and_access_control>
+    <user_roles>
+      <role name="skilled_worker">
+        <permissions>
+          - Can register with phone number and OTP verification
+          - Can create and manage own profile
+          - Can upload profile photo
+          - Can add/edit bio, skills, contact info
+          - Can view and manage pending ratings (accept/reject)
+          - Can view own average rating and stats
+          - Can delete own account
+          - Cannot access other workers' accounts
+          - Cannot access admin panel
+        </permissions>
+        <protected_routes>
+          - /worker/dashboard
+          - /worker/profile
+          - /worker/ratings
+        </protected_routes>
+      </role>
+      <role name="public_user">
+        <permissions>
+          - Can search for skilled workers (no login required)
+          - Can view worker profiles
+          - Can submit ratings and comments
+          - Cannot access worker dashboard
+          - Cannot access admin panel
+        </permissions>
+        <protected_routes>
+          - None (public access)
+        </protected_routes>
+      </role>
+      <role name="main_admin">
+        <permissions>
+          - Can view all registered workers
+          - Can manage skills database (CRUD)
+          - Can manage areas database (CRUD)
+          - Can view all ratings
+          - Can remove inappropriate profiles
+          - Full system access
+        </permissions>
+        <protected_routes>
+          - /admin/* (private URL)
+        </protected_routes>
+      </role>
+    </user_roles>
+    <authentication>
+      <worker_auth>
+        <method>Phone number (10 digits) + 4-digit PIN</method>
+        <verification>OTP via BulkSMS.com (6-digit code, 60 minute expiry)</verification>
+        <pin_reset>Self-service via OTP to registered phone</pin_reset>
+      </worker_auth>
+      <admin_auth>
+        <method>Username and password</method>
+        <storage>Stored in database as main_admin</storage>
+        <access>Private URL only</access>
+      </admin_auth>
+    </authentication>
+    <sensitive_operations>
+      - Account deletion requires confirmation
+      - PIN reset requires OTP verification
+      - Rating rejection is permanent
+    </sensitive_operations>
+  </security_and_access_control>
+
+  <core_features>
+    <worker_registration_and_auth>
+      - Phone number entry (10 digits, South African format)
+      - OTP generation and sending via BulkSMS.com API
+      - OTP verification (6-digit code, 60 minute expiry)
+      - 4-digit PIN creation
+      - Login with phone number and PIN
+      - Logout functionality
+      - Session management
+      - PIN reset flow (request, OTP verify, new PIN creation)
+      - Forgot PIN option on login screen
+    </worker_registration_and_auth>
+
+    <worker_profile_management>
+      - Profile creation form with all required fields
+      - Name and surname entry (separate fields)
+      - Age entry
+      - Gender selection (male/female)
+      - Area selection from autocomplete dropdown
+      - Skills selection (multi-select autocomplete with checkboxes)
+      - Years of experience per skill
+      - Bio text entry (500 character limit with counter)
+      - Phone number display (from registration)
+      - Optional email address entry
+      - Profile photo upload (from camera on mobile or file upload)
+      - Photo cropping to square format
+      - Rounded corners on profile photos
+      - Profile editing (all fields)
+      - Profile photo replacement
+      - Add additional skills after registration
+      - Profile preview before saving
+      - Form validation for all fields
+      - Profile deletion with confirmation
+    </worker_profile_management>
+
+    <worker_dashboard>
+      - Dashboard home view after login
+      - Profile information display
+      - Bio display
+      - Current skills list with experience years
+      - Pending ratings list
+      - Accept rating button
+      - Reject rating button (permanent deletion)
+      - Rating details view (stars, comment, date)
+      - Total average rating display (from accepted ratings only)
+      - Profile views count (optional stat)
+      - Edit profile button/link
+      - Logout button
+    </worker_dashboard>
+
+    <public_search_interface>
+      - Main landing page with "HIRE ME FOR" logo (red text, thick font)
+      - Modern, plain design
+      - Skill search autocomplete dropdown
+      - Area search autocomplete dropdown
+      - Search button
+      - Search results display
+      - Worker thumbnail photo in results
+      - Worker name in results
+      - Worker skills list in results
+      - Worker rating display (or "No ratings yet")
+      - Pagination controls (10/20/50 per page selector)
+      - Page navigation (previous/next, page numbers)
+      - Sort by name option
+      - Sort by surname option
+      - Sort by age option
+      - Sort by rating option (highest first)
+      - Empty state when no results found
+      - Loading state during search
+    </public_search_interface>
+
+    <public_profile_view>
+      - Full profile page on worker click
+      - Larger profile photo display
+      - Full bio display
+      - Complete skills list with experience years
+      - Phone number display
+      - Email display (if provided)
+      - Current average rating display
+      - Back to search results button
+      - Rate this worker button/link
+    </public_profile_view>
+
+    <public_rating_system>
+      - Rating form/modal
+      - Star rating selector (1-5 stars, 5 is best)
+      - Comment text input
+      - Submit rating button
+      - Rating submission confirmation
+      - Form validation
+      - Success message after submission
+      - Note that rating is pending worker approval
+    </public_rating_system>
+
+    <admin_panel>
+      - Private URL access (/admin or similar)
+      - Admin login form (username/password)
+      - Admin dashboard overview
+      - Total workers count
+      - Total ratings count
+      - Recent registrations list
+      - All workers list view
+      - Worker search/filter
+      - Worker detail view
+      - Remove worker option
+      - Skills management (view all)
+      - Add new skill
+      - Edit skill
+      - Delete skill
+      - Areas management (view all)
+      - Add new area
+      - Edit area
+      - Delete area
+      - All ratings view
+      - Admin logout
+    </admin_panel>
+
+    <ui_and_design>
+      - Responsive design (mobile and desktop)
+      - "HIRE ME FOR" text logo in red with thick font
+      - Modern, clean, plain design aesthetic
+      - Mobile camera integration for photo upload
+      - Square profile photos with rounded corners
+      - Autocomplete dropdown styling
+      - Loading spinners/states
+      - Error message displays
+      - Success message displays
+      - Form validation error styling
+      - Consistent button styling
+      - Mobile-friendly touch targets
+    </ui_and_design>
+  </core_features>
+
+  <database_schema>
+    <tables>
+      <workers>
+        - id (INT, PRIMARY KEY, AUTO_INCREMENT)
+        - phone_number (VARCHAR(10), UNIQUE, NOT NULL)
+        - pin_hash (VARCHAR(255), NOT NULL)
+        - first_name (VARCHAR(100), NOT NULL)
+        - surname (VARCHAR(100), NOT NULL)
+        - age (INT, NOT NULL)
+        - gender (ENUM('male', 'female'), NOT NULL)
+        - area_id (INT, FOREIGN KEY to areas.id, NOT NULL)
+        - bio (TEXT, max 500 chars)
+        - email (VARCHAR(255), NULLABLE)
+        - profile_photo_url (VARCHAR(500), NULLABLE)
+        - created_at (DATETIME)
+        - updated_at (DATETIME)
+      </workers>
+
+      <areas>
+        - id (INT, PRIMARY KEY, AUTO_INCREMENT)
+        - name (VARCHAR(200), NOT NULL)
+        - province (VARCHAR(100))
+        - created_at (DATETIME)
+        Test data: Johannesburg1, Johannesburg2
+      </areas>
+
+      <skills>
+        - id (INT, PRIMARY KEY, AUTO_INCREMENT)
+        - name (VARCHAR(200), UNIQUE, NOT NULL)
+        - created_at (DATETIME)
+        Test data: Plumber, Taxi Driver
+      </skills>
+
+      <worker_skills>
+        - id (INT, PRIMARY KEY, AUTO_INCREMENT)
+        - worker_id (INT, FOREIGN KEY to workers.id, ON DELETE CASCADE)
+        - skill_id (INT, FOREIGN KEY to skills.id)
+        - years_experience (INT, DEFAULT 0)
+        - UNIQUE constraint on (worker_id, skill_id)
+      </worker_skills>
+
+      <ratings>
+        - id (INT, PRIMARY KEY, AUTO_INCREMENT)
+        - worker_id (INT, FOREIGN KEY to workers.id, ON DELETE CASCADE)
+        - stars (INT, 1-5, NOT NULL)
+        - comment (TEXT, NULLABLE)
+        - status (ENUM('pending', 'accepted', 'rejected'), DEFAULT 'pending')
+        - created_at (DATETIME)
+        - reviewed_at (DATETIME, NULLABLE)
+      </ratings>
+
+      <otp_codes>
+        - id (INT, PRIMARY KEY, AUTO_INCREMENT)
+        - phone_number (VARCHAR(10), NOT NULL)
+        - code (VARCHAR(6), NOT NULL)
+        - purpose (ENUM('registration', 'pin_reset'), NOT NULL)
+        - expires_at (DATETIME, NOT NULL)
+        - used (BOOLEAN, DEFAULT FALSE)
+        - created_at (DATETIME)
+      </otp_codes>
+
+      <main_admin>
+        - id (INT, PRIMARY KEY, AUTO_INCREMENT)
+        - username (VARCHAR(100), UNIQUE, NOT NULL)
+        - password_hash (VARCHAR(255), NOT NULL)
+        - created_at (DATETIME)
+      </main_admin>
+
+      <worker_sessions>
+        - id (INT, PRIMARY KEY, AUTO_INCREMENT)
+        - worker_id (INT, FOREIGN KEY to workers.id, ON DELETE CASCADE)
+        - token (VARCHAR(255), UNIQUE, NOT NULL)
+        - expires_at (DATETIME)
+        - created_at (DATETIME)
+      </worker_sessions>
+    </tables>
+  </database_schema>
+
+  <api_endpoints_summary>
+    <authentication>
+      - POST /api/auth/request-otp (send OTP to phone)
+      - POST /api/auth/verify-otp (verify OTP code)
+      - POST /api/auth/create-pin (create 4-digit PIN)
+      - POST /api/auth/login (login with phone + PIN)
+      - POST /api/auth/logout (end session)
+      - POST /api/auth/reset-pin-request (request PIN reset OTP)
+      - POST /api/auth/reset-pin (set new PIN after OTP verify)
+    </authentication>
+
+    <worker_profile>
+      - GET /api/worker/profile (get own profile)
+      - PUT /api/worker/profile (update profile)
+      - POST /api/worker/profile/photo (upload profile photo)
+      - DELETE /api/worker/profile (delete account)
+      - GET /api/worker/skills (get own skills)
+      - POST /api/worker/skills (add skills)
+      - PUT /api/worker/skills/:id (update skill experience)
+      - DELETE /api/worker/skills/:id (remove skill)
+    </worker_profile>
+
+    <worker_ratings>
+      - GET /api/worker/ratings (get all ratings for worker)
+      - GET /api/worker/ratings/pending (get pending ratings)
+      - PUT /api/worker/ratings/:id/accept (accept rating)
+      - DELETE /api/worker/ratings/:id (reject/delete rating)
+      - GET /api/worker/stats (get average rating and stats)
+    </worker_ratings>
+
+    <public_search>
+      - GET /api/search/workers (search with filters: skill, area, pagination, sort)
+      - GET /api/workers/:id (get public profile)
+      - POST /api/workers/:id/rate (submit rating)
+    </public_search>
+
+    <autocomplete>
+      - GET /api/skills/search (autocomplete skills)
+      - GET /api/areas/search (autocomplete areas)
+      - GET /api/skills (get all skills)
+      - GET /api/areas (get all areas)
+    </autocomplete>
+
+    <admin>
+      - POST /api/admin/login (admin login)
+      - POST /api/admin/logout (admin logout)
+      - GET /api/admin/dashboard (stats overview)
+      - GET /api/admin/workers (list all workers)
+      - GET /api/admin/workers/:id (worker details)
+      - DELETE /api/admin/workers/:id (remove worker)
+      - GET /api/admin/skills (list all skills)
+      - POST /api/admin/skills (add skill)
+      - PUT /api/admin/skills/:id (edit skill)
+      - DELETE /api/admin/skills/:id (delete skill)
+      - GET /api/admin/areas (list all areas)
+      - POST /api/admin/areas (add area)
+      - PUT /api/admin/areas/:id (edit area)
+      - DELETE /api/admin/areas/:id (delete area)
+      - GET /api/admin/ratings (list all ratings)
+    </admin>
+  </api_endpoints_summary>
+
+  <ui_layout>
+    <public_platform>
+      <main_structure>
+        - Header with "HIRE ME FOR" text logo (red, thick font)
+        - Main content area with search controls
+        - Skill autocomplete dropdown
+        - Area autocomplete dropdown
+        - Search button
+        - Results grid/list below
+        - Pagination controls at bottom
+        - Sort options above results
+      </main_structure>
+      <profile_page>
+        - Large profile photo (square, rounded corners)
+        - Name and surname
+        - Skills with experience years
+        - Bio section
+        - Contact information
+        - Rating display
+        - Rate button
+        - Back button
+      </profile_page>
+    </public_platform>
+
+    <worker_portal>
+      <login_page>
+        - Logo
+        - Phone number input
+        - PIN input
+        - Login button
+        - Forgot PIN link
+        - Register link
+      </login_page>
+      <registration_flow>
+        - Step 1: Phone number entry, Request OTP button
+        - Step 2: OTP verification input
+        - Step 3: Create PIN
+        - Step 4: Profile form (name, surname, age, gender, area, skills, bio, email, photo)
+      </registration_flow>
+      <dashboard>
+        - Profile summary card
+        - Average rating display
+        - Pending ratings section with accept/reject buttons
+        - Edit profile button
+        - Logout button
+      </dashboard>
+    </worker_portal>
+
+    <admin_panel>
+      <layout>
+        - Sidebar navigation
+        - Main content area
+        - Dashboard with stats cards
+        - Data tables for workers, skills, areas, ratings
+        - CRUD forms in modals or separate pages
+      </layout>
+    </admin_panel>
+  </ui_layout>
+
+  <design_system>
+    <color_palette>
+      - Primary: Red (for logo and accents)
+      - Background: White/Light gray
+      - Text: Dark gray/Black
+      - Secondary: Subtle grays for borders and backgrounds
+      - Success: Green
+      - Error: Red (different shade from primary)
+    </color_palette>
+    <typography>
+      - Logo: Thick/bold sans-serif font in red
+      - Headings: Clean sans-serif
+      - Body: Readable sans-serif
+      - Modern, plain aesthetic
+    </typography>
+    <components>
+      - Profile photos: Square with rounded corners
+      - Buttons: Modern, clean styling
+      - Inputs: Clean borders, clear labels
+      - Autocomplete: Dropdown with search, checkbox multi-select for skills
+      - Star rating: Clickable stars 1-5
+      - Cards: Subtle shadows, rounded corners
+    </components>
+  </design_system>
+
+  <implementation_steps>
+    <step number="1">
+      <title>Database Setup</title>
+      <tasks>
+        - Create MySQL database
+        - Create all tables with proper relationships
+        - Seed test data (2 areas: Johannesburg1, Johannesburg2)
+        - Seed test skills (Plumber, Taxi Driver)
+        - Create main_admin user
+      </tasks>
+    </step>
+    <step number="2">
+      <title>Backend API Foundation</title>
+      <tasks>
+        - Set up Node.js project structure
+        - Configure MySQL connection
+        - Set up BulkSMS.com API integration
+        - Implement authentication endpoints (OTP, login, PIN)
+        - Implement session management
+      </tasks>
+    </step>
+    <step number="3">
+      <title>Worker Profile APIs</title>
+      <tasks>
+        - Implement profile CRUD endpoints
+        - Implement photo upload with processing (square, rounded)
+        - Implement skills management endpoints
+        - Implement ratings management endpoints
+      </tasks>
+    </step>
+    <step number="4">
+      <title>Public Search APIs</title>
+      <tasks>
+        - Implement search endpoint with filters
+        - Implement pagination and sorting
+        - Implement autocomplete endpoints
+        - Implement public profile view endpoint
+        - Implement rating submission endpoint
+      </tasks>
+    </step>
+    <step number="5">
+      <title>Admin APIs</title>
+      <tasks>
+        - Implement admin authentication
+        - Implement dashboard stats endpoint
+        - Implement workers management endpoints
+        - Implement skills CRUD endpoints
+        - Implement areas CRUD endpoints
+      </tasks>
+    </step>
+    <step number="6">
+      <title>Public Frontend</title>
+      <tasks>
+        - Create React project structure
+        - Build main search page with logo
+        - Implement autocomplete dropdowns
+        - Build search results with pagination and sorting
+        - Build worker profile view page
+        - Build rating submission form
+      </tasks>
+    </step>
+    <step number="7">
+      <title>Worker Portal Frontend</title>
+      <tasks>
+        - Build login page
+        - Build registration flow (OTP, PIN, profile)
+        - Build dashboard with profile display
+        - Build profile edit form
+        - Build ratings management interface
+        - Build PIN reset flow
+      </tasks>
+    </step>
+    <step number="8">
+      <title>Admin Panel Frontend</title>
+      <tasks>
+        - Build admin login page
+        - Build dashboard with stats
+        - Build workers list and management
+        - Build skills CRUD interface
+        - Build areas CRUD interface
+        - Build ratings overview
+      </tasks>
+    </step>
+    <step number="9">
+      <title>Integration and Polish</title>
+      <tasks>
+        - Connect all frontend to backend APIs
+        - Implement responsive design
+        - Add loading states and error handling
+        - Test all user flows end-to-end
+        - Mobile testing (camera upload, touch targets)
+      </tasks>
+    </step>
+    <step number="10">
+      <title>Final Testing and Deployment Prep</title>
+      <tasks>
+        - Complete feature testing
+        - Security review
+        - Performance optimization
+        - Documentation
+        - Deployment configuration
+      </tasks>
+    </step>
+  </implementation_steps>
+
+  <success_criteria>
+    <functionality>
+      - Workers can register via phone with OTP verification
+      - Workers can create and manage complete profiles
+      - Workers can control their ratings (accept/reject)
+      - Public can search by skill and area with autocomplete
+      - Public can view profiles and submit ratings
+      - Admin can manage skills, areas, and workers
+      - All 116 features working correctly
+    </functionality>
+    <user_experience>
+      - Clean, modern, plain design
+      - Fast autocomplete for skills and areas
+      - Intuitive registration flow
+      - Easy rating submission process
+      - Responsive on mobile and desktop
+    </user_experience>
+    <technical_quality>
+      - Real data persistence in MySQL
+      - Secure authentication (hashed PINs, secure sessions)
+      - Proper API error handling
+      - SMS integration working with BulkSMS.com
+      - No mock data anywhere
+    </technical_quality>
+    <design_polish>
+      - "HIRE ME FOR" logo in red, thick font
+      - Square profile photos with rounded corners
+      - Consistent styling throughout
+      - Professional appearance suitable for public launch
+    </design_polish>
+  </success_criteria>
+
+  <test_data>
+    <areas>
+      - Johannesburg1
+      - Johannesburg2
+    </areas>
+    <skills>
+      - Plumber
+      - Taxi Driver
+    </skills>
+    <admin_credentials>
+      - Username: (to be set during setup)
+      - Password: (to be set during setup, stored hashed)
+    </admin_credentials>
+  </test_data>
+
+  <external_integrations>
+    <bulksms>
+      <documentation>https://www.bulksms.com/developer/</documentation>
+      <purpose>OTP SMS delivery for registration and PIN reset</purpose>
+      <requirements>
+        - API credentials (API Token ID and Secret)
+        - Sender ID configuration
+        - Message templates for OTP codes
+      </requirements>
+    </bulksms>
+  </external_integrations>
+</project_specification>
