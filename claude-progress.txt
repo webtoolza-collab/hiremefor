@@ -413,6 +413,31 @@ Date: 2026-01-16
 ### Test Data State
 
 - **Worker 1:** Phone: 0821234567, PIN: 4321
-  - Has 2 accepted ratings (5-star, 4-star) → Average: 4.5
-  - Has 1 pending rating (3-star)
+  - Has 3 accepted ratings (5-star, 4-star, 3-star) → Average: 4.0
+  - Has 1 rejected rating (1-star "TO_REJECT_TEST")
   - Skills: Plumber (5 yrs), Taxi Driver (3 yrs)
+
+### Additional Features Verified (continued)
+
+5. **Feature #19: Worker ratings - view pending ratings** ✅
+   - Ratings page shows all ratings with stars, comments, dates
+   - Filter buttons: All, Pending, Accepted, Rejected
+   - Accept/Reject buttons present for pending ratings
+
+6. **Feature #20: Worker ratings - accept rating** ✅
+   - Accepting rating changes status to "accepted"
+   - Reviewed_at timestamp is set
+   - Rating included in average calculation
+   - Rating removed from pending list
+
+7. **Feature #21: Worker ratings - reject rating (permanent)** ✅
+   - Reject button shows confirmation dialog: "Are you sure? This action is permanent."
+   - After confirmation, rating status changed to "rejected"
+   - Reviewed_at timestamp is set
+   - Rating NOT included in average (4.0 unchanged)
+   - Rating removed from pending list
+
+### Feature Statistics (End of Session)
+- Total Features: 116
+- Passing: 19
+- Completion: 16.4%
