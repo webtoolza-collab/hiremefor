@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { searchAPI, autocompleteAPI } from '../services/api';
+import Autocomplete from '../components/Autocomplete';
 import './Home.css';
 
 function Home() {
@@ -105,31 +106,25 @@ function Home() {
           <form onSubmit={handleSearch} className="search-form">
             <div className="search-filters">
               <div className="form-group">
-                <label htmlFor="skill">Skill</label>
-                <select
-                  id="skill"
+                <Autocomplete
+                  label="Skill"
+                  options={skills}
                   value={selectedSkill}
-                  onChange={(e) => setSelectedSkill(e.target.value)}
-                >
-                  <option value="">All Skills</option>
-                  {skills.map(skill => (
-                    <option key={skill.id} value={skill.id}>{skill.name}</option>
-                  ))}
-                </select>
+                  onChange={setSelectedSkill}
+                  placeholder="Search skills..."
+                  allLabel="All Skills"
+                />
               </div>
 
               <div className="form-group">
-                <label htmlFor="area">Area</label>
-                <select
-                  id="area"
+                <Autocomplete
+                  label="Area"
+                  options={areas}
                   value={selectedArea}
-                  onChange={(e) => setSelectedArea(e.target.value)}
-                >
-                  <option value="">All Areas</option>
-                  {areas.map(area => (
-                    <option key={area.id} value={area.id}>{area.name}</option>
-                  ))}
-                </select>
+                  onChange={setSelectedArea}
+                  placeholder="Search areas..."
+                  allLabel="All Areas"
+                />
               </div>
 
               <div className="search-buttons">
