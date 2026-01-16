@@ -186,19 +186,41 @@ router.post('/skills', authenticateWorker, async (req, res) => {
       return res.status(400).json({ error: 'Skills array required' });
     }
 
+    // First, get current skills for this worker
+    const [currentSkills] = await db.query(
+      'SELECT skill_id FROM worker_skills WHERE worker_id = ?',
+      [req.workerId]
+    );
+    const currentSkillIds = currentSkills.map(s => s.skill_id);
+    const newSkillIds = skills.map(s => s.skill_id);
+
+    // Delete skills that are no longer selected
+    const skillsToRemove = currentSkillIds.filter(id => !newSkillIds.includes(id));
+    for (const skillId of skillsToRemove) {
+      await db.query(
+        'DELETE FROM worker_skills WHERE worker_id = ? AND skill_id = ?',
+        [req.workerId, skillId]
+      );
+    }
+
+    // Insert or update skills
     for (const skill of skills) {
-      // First try to update existing
-      const [updateResult] = await db.query(
-        `UPDATE worker_skills SET years_experience = ?
-         WHERE worker_id = ? AND skill_id = ?`,
-        [skill.years_experience || 0, req.workerId, skill.skill_id]
+      // Check if skill already exists
+      const [existing] = await db.query(
+        'SELECT id FROM worker_skills WHERE worker_id = ? AND skill_id = ?',
+        [req.workerId, skill.skill_id]
       );
 
-      // If no row updated, insert new
-      if (updateResult.affectedRows === 0) {
+      if (existing.length > 0) {
+        // Update existing
         await db.query(
-          `INSERT INTO worker_skills (worker_id, skill_id, years_experience)
-           VALUES (?, ?, ?)`,
+          'UPDATE worker_skills SET years_experience = ? WHERE worker_id = ? AND skill_id = ?',
+          [skill.years_experience || 0, req.workerId, skill.skill_id]
+        );
+      } else {
+        // Insert new
+        await db.query(
+          'INSERT INTO worker_skills (worker_id, skill_id, years_experience) VALUES (?, ?, ?)',
           [req.workerId, skill.skill_id, skill.years_experience || 0]
         );
       }

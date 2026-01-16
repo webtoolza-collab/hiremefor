@@ -255,3 +255,68 @@ Date: 2026-01-16
 - **Worker 1:** Phone: 0821234567, PIN: 4321 (was reset from 1234)
 - **Worker 2:** Phone: 0829876543, PIN: 5678 (newly created)
 - **Admin:** Username: admin, Password: admin123
+
+---
+
+## Session 3 Summary (Coding Agent)
+Date: 2026-01-16
+
+### Completed Tasks
+
+1. **Regression Testing**
+   - Verified worker login still works with test credentials (0821234567 / 4321)
+   - Dashboard displays correctly with profile info
+
+2. **Feature #14: Worker profile - bio character limit** ✅
+   - Verified bio field has character counter (shows X/500)
+   - Tested entering exactly 500 characters
+   - Verified counter updates correctly to 500/500
+   - Confirmed input is blocked at 500 characters (extra text rejected)
+   - Bio saved correctly to database
+   - Character counter styling shows warning/limit colors
+
+3. **Feature #15: Worker profile - edit existing profile** ✅
+   - Fixed skills API SQLite compatibility bug
+   - Verified all form fields are pre-populated with current values
+   - Tested changing first name (Johnny → John)
+   - Tested changing area selection (Johannesburg2 → Johannesburg1)
+   - Tested adding new skill (Taxi Driver with 3 years experience)
+   - Tested updating bio text
+   - Verified all changes saved successfully to database
+   - Verified dashboard displays all updated information
+   - Skills now properly handled with check-then-insert pattern
+
+### Bug Fixes
+
+1. **Skills API SQLite Compatibility**
+   - File: `backend/src/routes/worker.js`
+   - Issue: Skills update used MySQL-style update-then-insert which failed on SQLite when skill already existed with same values
+   - Fix: Rewrote to check-existing-then-insert/update pattern:
+     - First fetch current skills for worker
+     - Delete skills that are no longer selected
+     - For each skill, check if exists then update or insert
+   - This fix enables the profile edit feature to work correctly
+
+### Files Modified
+
+- `backend/src/routes/worker.js` - Fixed skills API endpoint for SQLite
+
+### Feature Statistics
+- Total Features: 116
+- Passing: 13 (was 11 at session start)
+- In Progress: 0
+- Completion: 11.2%
+
+### Test Credentials
+
+- **Worker 1:** Phone: 0821234567, PIN: 4321
+  - Profile: John TestWorker, Johannesburg1
+  - Skills: Plumber (5 yrs), Taxi Driver (3 yrs)
+- **Worker 2:** Phone: 0829876543, PIN: 5678
+- **Admin:** Username: admin, Password: admin123
+
+### Next Steps for Future Agents
+
+1. Continue with feature_get_next to get next pending feature
+2. All servers start correctly - use npm start in backend/ and frontend/
+3. Skills editing now works properly with the fixed backend
