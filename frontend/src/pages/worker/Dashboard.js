@@ -116,6 +116,9 @@ function WorkerDashboard() {
           <div style={{ flex: 1 }}>
             <h2>{profile?.first_name} {profile?.surname}</h2>
             <p style={{ color: '#6b7280' }}>{profile?.area_name}</p>
+            <p style={{ color: '#9ca3af', fontSize: '0.875rem' }}>
+              {profile?.age} years old • {profile?.gender}
+            </p>
             <p style={{ color: '#9ca3af', fontSize: '0.875rem' }}>{profile?.phone_number}</p>
 
             <div style={{ marginTop: '1rem' }}>
