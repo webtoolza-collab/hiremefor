@@ -173,3 +173,78 @@ hire-me-for/
 ### Commit History
 
 1. `7a5b66b` - Initial setup: project structure, features database, and init script
+
+---
+
+## Session 2 Summary (Coding Agent)
+Date: 2026-01-16
+
+### Completed Tasks
+
+1. **Regression Testing**
+   - Verified worker login with correct credentials works
+   - Confirmed test worker (John TestWorker, phone: 0821234567, PIN: 1234)
+
+2. **Feature #7: Worker login - invalid PIN rejection** ✅
+   - Tested login with incorrect PIN
+   - Verified API returns proper error message: "Invalid phone number or PIN"
+   - Confirmed no session is created for failed login attempts
+   - User remains on login page after failure
+
+3. **Feature #8: Worker logout functionality** ✅
+   - Fixed bug: Authorization header wasn't being sent for /auth/logout endpoint
+   - Updated api.js interceptor to include token for logout requests
+   - Verified session is deleted from database on logout
+   - Confirmed accessing protected routes with deleted token returns 401
+
+4. **Feature #9: Worker PIN reset - request OTP** ✅
+   - Created ForgotPin.js component with 3-step flow:
+     - Step 1: Phone number entry
+     - Step 2: OTP verification + new PIN entry
+     - Step 3: Success confirmation
+   - Added route /worker/forgot-pin to App.js
+   - Verified OTP is created with purpose='pin_reset'
+   - API correctly sends OTP to registered phone
+
+### Bug Fixes
+
+1. **Logout Authorization Header Bug**
+   - File: `frontend/src/services/api.js`
+   - Issue: axios interceptor only added Authorization header for /worker/* URLs
+   - Fix: Added check for '/auth/logout' to include worker token
+
+### Files Created/Modified
+
+**Created:**
+- `frontend/src/pages/worker/ForgotPin.js` - PIN reset flow component
+- `backend/check-otp.js` - Debug script for OTP verification
+
+**Modified:**
+- `frontend/src/services/api.js` - Fixed logout authorization header
+- `frontend/src/App.js` - Added ForgotPin route
+
+### Feature Statistics
+- Total Features: 116
+- Passing: 9 (was 6 at session start)
+- In Progress: 0
+- Completion: 7.8%
+
+### Next Steps for Future Agents
+
+1. Continue with feature_get_next to get the next feature
+2. Features 10+ likely include:
+   - PIN reset verification and completion
+   - Worker profile creation/editing
+   - Public search functionality
+   - Rating submission and management
+3. Browser automation had issues during this session - may need to restart browser or use alternative testing methods
+
+### Known Issues
+
+- Playwright browser occasionally gets locked - may need to clear browser profile directory
+- Frontend server may need restart if connection is refused
+
+### Test Credentials
+
+- **Worker:** Phone: 0821234567, PIN: 1234
+- **Admin:** Username: admin, Password: admin123

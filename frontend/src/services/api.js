@@ -14,7 +14,8 @@ api.interceptors.request.use((config) => {
   const workerToken = localStorage.getItem('workerToken');
   const adminToken = localStorage.getItem('adminToken');
 
-  if (workerToken && config.url.includes('/worker')) {
+  // Include token for worker routes and auth/logout
+  if (workerToken && (config.url.includes('/worker') || config.url === '/auth/logout')) {
     config.headers.Authorization = `Bearer ${workerToken}`;
   } else if (adminToken && config.url.includes('/admin')) {
     config.headers.Authorization = `Bearer ${adminToken}`;
@@ -28,13 +29,20 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Clear tokens and redirect based on URL
-      if (window.location.pathname.startsWith('/worker')) {
-        localStorage.removeItem('workerToken');
-        window.location.href = '/worker/login';
-      } else if (window.location.pathname.startsWith('/admin')) {
-        localStorage.removeItem('adminToken');
-        window.location.href = '/admin';
+      // Don't redirect on login pages - let the component handle the error
+      const isLoginPage = window.location.pathname === '/worker/login' ||
+                          window.location.pathname === '/admin' ||
+                          window.location.pathname === '/admin/login';
+
+      if (!isLoginPage) {
+        // Clear tokens and redirect based on URL
+        if (window.location.pathname.startsWith('/worker')) {
+          localStorage.removeItem('workerToken');
+          window.location.href = '/worker/login';
+        } else if (window.location.pathname.startsWith('/admin')) {
+          localStorage.removeItem('adminToken');
+          window.location.href = '/admin';
+        }
       }
     }
     return Promise.reject(error);

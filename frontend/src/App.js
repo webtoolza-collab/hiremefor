@@ -11,6 +11,7 @@ import WorkerRegister from './pages/worker/Register';
 import WorkerDashboard from './pages/worker/Dashboard';
 import WorkerEditProfile from './pages/worker/EditProfile';
 import WorkerRatings from './pages/worker/Ratings';
+import WorkerForgotPin from './pages/worker/ForgotPin';
 
 // Admin Pages
 import AdminLogin from './pages/admin/Login';
@@ -34,6 +35,7 @@ function App() {
         {/* Worker Routes */}
         <Route path="/worker/login" element={<WorkerLogin />} />
         <Route path="/worker/register" element={<WorkerRegister />} />
+        <Route path="/worker/forgot-pin" element={<WorkerForgotPin />} />
         <Route path="/worker/dashboard" element={<WorkerDashboard />} />
         <Route path="/worker/profile/edit" element={<WorkerEditProfile />} />
         <Route path="/worker/ratings" element={<WorkerRatings />} />
