@@ -8,17 +8,45 @@ function Home() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [skills, setSkills] = useState([]);
   const [areas, setAreas] = useState([]);
-  const [selectedSkill, setSelectedSkill] = useState(searchParams.get('skill_id') || '');
-  const [selectedArea, setSelectedArea] = useState(searchParams.get('area_id') || '');
+  const [selectedSkill, setSelectedSkill] = useState('');
+  const [selectedArea, setSelectedArea] = useState('');
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, total_pages: 0 });
   const [sortBy, setSortBy] = useState('first_name');
   const [sortOrder, setSortOrder] = useState('ASC');
+  const [initialParamsApplied, setInitialParamsApplied] = useState(false);
 
   useEffect(() => {
     loadOptions();
   }, []);
+
+  // Apply URL params after options are loaded
+  useEffect(() => {
+    if (skills.length > 0 && areas.length > 0 && !initialParamsApplied) {
+      // Try skill_id first, then skill (name)
+      const skillIdParam = searchParams.get('skill_id');
+      const skillNameParam = searchParams.get('skill');
+      const areaIdParam = searchParams.get('area_id');
+      const areaNameParam = searchParams.get('area');
+
+      if (skillIdParam) {
+        setSelectedSkill(skillIdParam);
+      } else if (skillNameParam) {
+        const matchingSkill = skills.find(s => s.name.toLowerCase() === skillNameParam.toLowerCase());
+        if (matchingSkill) setSelectedSkill(String(matchingSkill.id));
+      }
+
+      if (areaIdParam) {
+        setSelectedArea(areaIdParam);
+      } else if (areaNameParam) {
+        const matchingArea = areas.find(a => a.name.toLowerCase() === areaNameParam.toLowerCase());
+        if (matchingArea) setSelectedArea(String(matchingArea.id));
+      }
+
+      setInitialParamsApplied(true);
+    }
+  }, [skills, areas, searchParams, initialParamsApplied]);
 
   useEffect(() => {
     searchWorkers();
@@ -53,10 +81,18 @@ function Home() {
       setWorkers(response.data.workers);
       setPagination(prev => ({ ...prev, ...response.data.pagination }));
 
-      // Update URL
+      // Update URL with both id and name for better shareability
       const newParams = new URLSearchParams();
-      if (selectedSkill) newParams.set('skill_id', selectedSkill);
-      if (selectedArea) newParams.set('area_id', selectedArea);
+      if (selectedSkill) {
+        newParams.set('skill_id', selectedSkill);
+        const skillObj = skills.find(s => String(s.id) === String(selectedSkill));
+        if (skillObj) newParams.set('skill', skillObj.name);
+      }
+      if (selectedArea) {
+        newParams.set('area_id', selectedArea);
+        const areaObj = areas.find(a => String(a.id) === String(selectedArea));
+        if (areaObj) newParams.set('area', areaObj.name);
+      }
       setSearchParams(newParams);
     } catch (error) {
       console.error('Search failed:', error);

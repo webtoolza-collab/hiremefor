@@ -6,3 +6,5 @@ console.log('\nWorker Skills:');
 console.log(JSON.stringify(db.prepare('SELECT * FROM worker_skills').all(), null, 2));
 console.log('\nWorker Sessions:');
 console.log(JSON.stringify(db.prepare('SELECT * FROM worker_sessions').all(), null, 2));
+console.log('\nRatings:');
+console.log(JSON.stringify(db.prepare('SELECT * FROM ratings').all(), null, 2));
