@@ -32,7 +32,7 @@ router.post('/login', async (req, res) => {
 
     // Create session
     const token = uuidv4();
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); // 24 hours
 
     await db.query(
       `INSERT INTO admin_sessions (admin_id, token, expires_at) VALUES (?, ?, ?)`,

@@ -320,3 +320,64 @@ Date: 2026-01-16
 1. Continue with feature_get_next to get next pending feature
 2. All servers start correctly - use npm start in backend/ and frontend/
 3. Skills editing now works properly with the fixed backend
+
+---
+
+## Session 4 Summary (Coding Agent)
+Date: 2026-01-16
+
+### Completed Tasks
+
+1. **Regression Testing**
+   - Verified worker login still works with test credentials (0821234567 / 4321)
+   - Dashboard displays correctly with profile info and skills
+
+2. **Feature #16: Worker profile - delete account with confirmation** ✅
+   - Full end-to-end testing of account deletion flow:
+     - Step 1: Logged in as test worker 2 (Jane Doe - 0829876543)
+     - Step 2: Navigated to Edit Profile page
+     - Step 3: Clicked Delete Account button
+     - Step 4: Verified FIRST confirmation dialog appears ("Are you sure you want to delete your account?")
+     - Step 5: Clicked Cancel - verified account still exists
+     - Step 6: Clicked Delete Account again
+     - Step 7: Accepted first confirmation
+     - Step 8: Verified SECOND confirmation dialog appears ("This will permanently delete your profile and all your ratings")
+     - Step 9: Accepted second confirmation
+     - Step 10: Verified redirect to home page
+     - Step 11: Verified worker count dropped from 2 to 1
+     - Step 12: Verified login with deleted account fails ("Invalid phone number or PIN")
+     - Step 13: Verified worker profile page returns error for deleted worker
+   - **Cascade Delete Verified:**
+     - Created test rating "TEST_DELETE_RATING_12345" for Jane Doe before deletion
+     - Rating was automatically deleted via CASCADE constraint
+     - Worker skills also deleted via CASCADE constraint
+
+### Bug Fixes
+
+1. **Admin Login Date Format Bug**
+   - File: `backend/src/routes/admin.js`
+   - Issue: `expiresAt` was a Date object instead of ISO string, causing SQLite insert to fail
+   - Fix: Added `.toISOString()` to convert Date to string
+   - Status: Fixed but requires server restart to take effect
+
+### Feature Statistics
+- Total Features: 116
+- Passing: 14 (was 13 at session start)
+- In Progress: 0
+- Completion: 12.1%
+
+### Test Credentials
+
+- **Worker 1:** Phone: 0821234567, PIN: 4321
+  - Profile: John TestWorker, Johannesburg1
+  - Skills: Plumber (5 yrs), Taxi Driver (3 yrs)
+- **Worker 2:** DELETED (was Jane Doe - 0829876543)
+- **Admin:** Username: admin, Password: admin123
+  - Note: Admin login requires server restart after bug fix
+
+### Next Steps for Future Agents
+
+1. **IMPORTANT:** Restart backend server for admin login fix to take effect
+2. Continue with feature_get_next to get next pending feature
+3. May need to create a new test worker since Worker 2 was deleted
+4. Consider re-testing admin panel functionality after server restart
