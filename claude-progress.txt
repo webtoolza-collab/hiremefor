@@ -381,3 +381,38 @@ Date: 2026-01-16
 2. Continue with feature_get_next to get next pending feature
 3. May need to create a new test worker since Worker 2 was deleted
 4. Consider re-testing admin panel functionality after server restart
+
+---
+
+## Session 4 Continued
+
+### Additional Features Verified
+
+3. **Feature #17: Worker dashboard - profile display** ✅
+   - Added age and gender display to dashboard (was missing)
+   - Verified all profile fields: name, surname, area, age, gender, phone, bio, skills
+   - Profile photo shows initials placeholder when no photo uploaded
+
+4. **Feature #18: Worker dashboard - average rating display** ✅
+   - Submitted 3 test ratings: 5-star, 3-star, 4-star (all pending initially)
+   - Verified "0.0 (0 ratings)" when all ratings pending
+   - Accepted 5-star rating → average became "5.0 (1 ratings)"
+   - Accepted 4-star rating → average became "4.5 (2 ratings)"
+   - Verified calculation: (5 + 4) / 2 = 4.5 ✅
+   - **CONFIRMED:** Pending ratings (3-star) NOT included in average
+
+### Files Modified
+
+- `frontend/src/pages/worker/Dashboard.js` - Added age and gender display
+
+### Feature Statistics
+- Total Features: 116
+- Passing: 16
+- Completion: 13.8%
+
+### Test Data State
+
+- **Worker 1:** Phone: 0821234567, PIN: 4321
+  - Has 2 accepted ratings (5-star, 4-star) → Average: 4.5
+  - Has 1 pending rating (3-star)
+  - Skills: Plumber (5 yrs), Taxi Driver (3 yrs)
