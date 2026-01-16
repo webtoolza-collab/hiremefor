@@ -13,9 +13,15 @@ async function sendSMS(phoneNumber, message) {
   const tokenSecret = process.env.BULKSMS_TOKEN_SECRET;
   const senderId = process.env.BULKSMS_SENDER_ID || 'HireMeFor';
 
-  if (!tokenId || !tokenSecret) {
-    console.error('BulkSMS credentials not configured');
-    throw new Error('SMS service not configured');
+  // Development mode: log to console instead of sending
+  if (!tokenId || !tokenSecret || tokenId === 'your_token_id_here') {
+    console.log('\n========================================');
+    console.log('  SMS (Development Mode - Not Sent)');
+    console.log('========================================');
+    console.log(`  To: ${phoneNumber}`);
+    console.log(`  Message: ${message}`);
+    console.log('========================================\n');
+    return { success: true, development: true };
   }
 
   // Format phone number with South Africa country code

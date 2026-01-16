@@ -1,0 +1,8 @@
+const path = require('path');
+const db = require('better-sqlite3')(path.join(__dirname, 'data/hire_me_for.db'));
+console.log('Workers:');
+console.log(JSON.stringify(db.prepare('SELECT id, phone_number, first_name, surname, age, gender, area_id, bio FROM workers').all(), null, 2));
+console.log('\nWorker Skills:');
+console.log(JSON.stringify(db.prepare('SELECT * FROM worker_skills').all(), null, 2));
+console.log('\nWorker Sessions:');
+console.log(JSON.stringify(db.prepare('SELECT * FROM worker_sessions').all(), null, 2));

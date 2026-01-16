@@ -27,7 +27,7 @@ router.post('/request-otp', async (req, res) => {
 
     // Generate and save OTP
     const otpCode = generateOTP();
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 60 minutes
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString(); // 60 minutes
 
     await db.query(
       `INSERT INTO otp_codes (phone_number, code, purpose, expires_at)
@@ -55,12 +55,13 @@ router.post('/verify-otp', async (req, res) => {
     }
 
     // Find valid OTP
+    const currentTime = new Date().toISOString();
     const [otps] = await db.query(
       `SELECT id FROM otp_codes
        WHERE phone_number = ? AND code = ? AND purpose = 'registration'
-       AND expires_at > NOW() AND used = FALSE
+       AND expires_at > ? AND used = 0
        ORDER BY created_at DESC LIMIT 1`,
-      [phone_number, code]
+      [phone_number, code, currentTime]
     );
 
     if (otps.length === 0) {
@@ -68,7 +69,7 @@ router.post('/verify-otp', async (req, res) => {
     }
 
     // Mark OTP as used
-    await db.query('UPDATE otp_codes SET used = TRUE WHERE id = ?', [otps[0].id]);
+    await db.query('UPDATE otp_codes SET used = 1 WHERE id = ?', [otps[0].id]);
 
     // Generate temporary token for PIN creation
     const tempToken = uuidv4();
@@ -137,7 +138,7 @@ router.post('/login', async (req, res) => {
 
     // Create session
     const token = uuidv4();
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); // 24 hours
 
     await db.query(
       `INSERT INTO worker_sessions (worker_id, token, expires_at)
@@ -197,7 +198,7 @@ router.post('/reset-pin-request', async (req, res) => {
 
     // Generate and save OTP
     const otpCode = generateOTP();
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 60 minutes
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString(); // 60 minutes
 
     await db.query(
       `INSERT INTO otp_codes (phone_number, code, purpose, expires_at)
@@ -229,12 +230,13 @@ router.post('/reset-pin', async (req, res) => {
     }
 
     // Verify OTP
+    const currentTime = new Date().toISOString();
     const [otps] = await db.query(
       `SELECT id FROM otp_codes
        WHERE phone_number = ? AND code = ? AND purpose = 'pin_reset'
-       AND expires_at > NOW() AND used = FALSE
+       AND expires_at > ? AND used = 0
        ORDER BY created_at DESC LIMIT 1`,
-      [phone_number, code]
+      [phone_number, code, currentTime]
     );
 
     if (otps.length === 0) {
@@ -242,7 +244,7 @@ router.post('/reset-pin', async (req, res) => {
     }
 
     // Mark OTP as used
-    await db.query('UPDATE otp_codes SET used = TRUE WHERE id = ?', [otps[0].id]);
+    await db.query('UPDATE otp_codes SET used = 1 WHERE id = ?', [otps[0].id]);
 
     // Update PIN
     const pinHash = await bcrypt.hash(new_pin, 10);
