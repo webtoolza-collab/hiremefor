@@ -13,7 +13,7 @@ async function authenticateWorker(req, res, next) {
       `SELECT s.*, w.id as worker_id, w.phone_number, w.first_name, w.surname
        FROM worker_sessions s
        JOIN workers w ON s.worker_id = w.id
-       WHERE s.token = ? AND s.expires_at > NOW()`,
+       WHERE s.token = ? AND datetime(s.expires_at) > datetime('now')`,
       [token]
     );
 
@@ -43,7 +43,7 @@ async function authenticateAdmin(req, res, next) {
       `SELECT s.*, a.id as admin_id, a.username
        FROM admin_sessions s
        JOIN main_admin a ON s.admin_id = a.id
-       WHERE s.token = ? AND s.expires_at > NOW()`,
+       WHERE s.token = ? AND datetime(s.expires_at) > datetime('now')`,
       [token]
     );
 

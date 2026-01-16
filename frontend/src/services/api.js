@@ -14,11 +14,12 @@ api.interceptors.request.use((config) => {
   const workerToken = localStorage.getItem('workerToken');
   const adminToken = localStorage.getItem('adminToken');
 
-  // Include token for worker routes and auth/logout
-  if (workerToken && (config.url.includes('/worker') || config.url === '/auth/logout')) {
-    config.headers.Authorization = `Bearer ${workerToken}`;
-  } else if (adminToken && config.url.includes('/admin')) {
+  // Include token for admin or worker routes
+  // Check admin first since /admin/workers contains '/worker'
+  if (adminToken && config.url.includes('/admin')) {
     config.headers.Authorization = `Bearer ${adminToken}`;
+  } else if (workerToken && (config.url.includes('/worker') || config.url === '/auth/logout')) {
+    config.headers.Authorization = `Bearer ${workerToken}`;
   }
 
   return config;
