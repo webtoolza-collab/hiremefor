@@ -225,26 +225,33 @@ Date: 2026-01-16
 
 ### Feature Statistics
 - Total Features: 116
-- Passing: 9 (was 6 at session start)
+- Passing: 11 (was 6 at session start)
 - In Progress: 0
-- Completion: 7.8%
+- Completion: 9.5%
 
 ### Next Steps for Future Agents
 
-1. Continue with feature_get_next to get the next feature
-2. Features 10+ likely include:
-   - PIN reset verification and completion
-   - Worker profile creation/editing
-   - Public search functionality
-   - Rating submission and management
-3. Browser automation had issues during this session - may need to restart browser or use alternative testing methods
+1. **IMPORTANT: Restart backend server** before continuing - there are code fixes that require server restart
+2. Continue with feature_get_next to get the next feature
+3. Feature #12 (photo upload) and #13 (skills management) were skipped due to:
+   - Browser lock issues preventing UI testing
+   - Backend couldn't be restarted (port in use)
+4. After backend restart, re-test features #12 and #13
 
 ### Known Issues
 
 - Playwright browser occasionally gets locked - may need to clear browser profile directory
 - Frontend server may need restart if connection is refused
+- **SQLite compatibility**: Fixed `ON DUPLICATE KEY UPDATE` to use update-then-insert pattern
+- Backend process may need manual restart between sessions
+
+### Bug Fixes Applied (need server restart to take effect)
+
+1. **Skills API**: Fixed MySQL `ON DUPLICATE KEY UPDATE` to SQLite-compatible update-then-insert
+2. **Photo Upload UI**: Added to EditProfile.js (frontend change, no restart needed)
 
 ### Test Credentials
 
-- **Worker:** Phone: 0821234567, PIN: 1234
+- **Worker 1:** Phone: 0821234567, PIN: 4321 (was reset from 1234)
+- **Worker 2:** Phone: 0829876543, PIN: 5678 (newly created)
 - **Admin:** Username: admin, Password: admin123

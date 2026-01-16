@@ -6,11 +6,13 @@ function WorkerEditProfile() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
   const [skills, setSkills] = useState([]);
   const [areas, setAreas] = useState([]);
+  const [photoUrl, setPhotoUrl] = useState(null);
 
   const [profile, setProfile] = useState({
     first_name: '',
@@ -46,6 +48,7 @@ function WorkerEditProfile() {
         email: p.email || '',
         skills: p.skills.map(s => ({ skill_id: s.skill_id, years_experience: s.years_experience }))
       });
+      setPhotoUrl(p.profile_photo_url);
       setSkills(skillsRes.data);
       setAreas(areasRes.data);
     } catch (err) {
@@ -55,6 +58,39 @@ function WorkerEditProfile() {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      setError('Please upload a JPEG, PNG, or WebP image');
+      return;
+    }
+
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image must be smaller than 5MB');
+      return;
+    }
+
+    setError('');
+    setUploadingPhoto(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('photo', file);
+
+      const response = await workerAPI.uploadPhoto(formData);
+      setPhotoUrl(response.data.photo_url);
+      setSuccess('Photo uploaded successfully!');
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to upload photo');
+    } finally {
+      setUploadingPhoto(false);
     }
   };
 
@@ -137,6 +173,55 @@ function WorkerEditProfile() {
 
           {error && <p className="error-message" style={{ marginBottom: '1rem' }}>{error}</p>}
           {success && <p className="success-message" style={{ marginBottom: '1rem' }}>{success}</p>}
+
+          {/* Profile Photo Section */}
+          <div className="form-group" style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            <label style={{ display: 'block', marginBottom: '1rem' }}>Profile Photo</label>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+              {photoUrl ? (
+                <img
+                  src={photoUrl.startsWith('/') ? `http://localhost:3001${photoUrl}` : photoUrl}
+                  alt="Profile"
+                  className="profile-photo"
+                  style={{ width: '150px', height: '150px', objectFit: 'cover' }}
+                />
+              ) : (
+                <div
+                  className="profile-photo"
+                  style={{
+                    width: '150px',
+                    height: '150px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: '#e5e7eb',
+                    color: '#6b7280',
+                    fontSize: '3rem',
+                    fontWeight: 600
+                  }}
+                >
+                  {profile.first_name?.[0]}{profile.surname?.[0]}
+                </div>
+              )}
+              <label className="btn btn-secondary" style={{ cursor: 'pointer' }}>
+                {uploadingPhoto ? (
+                  <span className="spinner"></span>
+                ) : (
+                  photoUrl ? 'Change Photo' : 'Upload Photo'
+                )}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={handlePhotoUpload}
+                  style={{ display: 'none' }}
+                  disabled={uploadingPhoto}
+                />
+              </label>
+              <p style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                JPEG, PNG, or WebP. Max 5MB. Will be cropped to square.
+              </p>
+            </div>
+          </div>
 
           <form onSubmit={handleSubmit}>
             <div className="grid grid-2">

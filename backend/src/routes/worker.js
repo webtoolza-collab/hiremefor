@@ -187,12 +187,21 @@ router.post('/skills', authenticateWorker, async (req, res) => {
     }
 
     for (const skill of skills) {
-      await db.query(
-        `INSERT INTO worker_skills (worker_id, skill_id, years_experience)
-         VALUES (?, ?, ?)
-         ON DUPLICATE KEY UPDATE years_experience = VALUES(years_experience)`,
-        [req.workerId, skill.skill_id, skill.years_experience || 0]
+      // First try to update existing
+      const [updateResult] = await db.query(
+        `UPDATE worker_skills SET years_experience = ?
+         WHERE worker_id = ? AND skill_id = ?`,
+        [skill.years_experience || 0, req.workerId, skill.skill_id]
       );
+
+      // If no row updated, insert new
+      if (updateResult.affectedRows === 0) {
+        await db.query(
+          `INSERT INTO worker_skills (worker_id, skill_id, years_experience)
+           VALUES (?, ?, ?)`,
+          [req.workerId, skill.skill_id, skill.years_experience || 0]
+        );
+      }
     }
 
     res.json({ message: 'Skills added successfully' });
