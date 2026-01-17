@@ -249,7 +249,7 @@ router.post('/reset-pin', async (req, res) => {
     // Update PIN
     const pinHash = await bcrypt.hash(new_pin, 10);
     await db.query(
-      'UPDATE workers SET pin_hash = ? WHERE phone_number = ?',
+      'UPDATE workers SET pin_hash = ?, updated_at = CURRENT_TIMESTAMP WHERE phone_number = ?',
       [pinHash, phone_number]
     );
 

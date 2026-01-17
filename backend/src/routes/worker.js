@@ -90,7 +90,7 @@ router.put('/profile', authenticateWorker, async (req, res) => {
 
     await db.query(
       `UPDATE workers
-       SET first_name = ?, surname = ?, age = ?, gender = ?, area_id = ?, bio = ?, email = ?
+       SET first_name = ?, surname = ?, age = ?, gender = ?, area_id = ?, bio = ?, email = ?, updated_at = CURRENT_TIMESTAMP
        WHERE id = ?`,
       [first_name, surname, age, gender, area_id, bio || null, email || null, req.workerId]
     );
@@ -135,7 +135,7 @@ router.post('/profile/photo', authenticateWorker, upload.single('photo'), async 
 
     // Update database
     await db.query(
-      'UPDATE workers SET profile_photo_url = ? WHERE id = ?',
+      'UPDATE workers SET profile_photo_url = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
       [photoUrl, req.workerId]
     );
 
