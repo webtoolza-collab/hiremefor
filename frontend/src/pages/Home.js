@@ -12,6 +12,7 @@ function Home() {
   const [selectedArea, setSelectedArea] = useState('');
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, total_pages: 0 });
   const [sortBy, setSortBy] = useState('first_name');
   const [sortOrder, setSortOrder] = useState('ASC');
@@ -54,19 +55,22 @@ function Home() {
 
   const loadOptions = async () => {
     try {
+      setError(null);
       const [skillsRes, areasRes] = await Promise.all([
         autocompleteAPI.getSkills(),
         autocompleteAPI.getAreas()
       ]);
       setSkills(skillsRes.data);
       setAreas(areasRes.data);
-    } catch (error) {
-      console.error('Failed to load options:', error);
+    } catch (err) {
+      console.error('Failed to load options:', err);
+      setError('Unable to connect to the server. Please check your internet connection and try again.');
     }
   };
 
   const searchWorkers = async () => {
     setLoading(true);
+    setError(null);
     try {
       const params = {
         page: pagination.page,
@@ -94,8 +98,10 @@ function Home() {
         if (areaObj) newParams.set('area', areaObj.name);
       }
       setSearchParams(newParams);
-    } catch (error) {
-      console.error('Search failed:', error);
+    } catch (err) {
+      console.error('Search failed:', err);
+      setError('Search failed. Please check your internet connection and try again.');
+      setWorkers([]);
     } finally {
       setLoading(false);
     }
@@ -208,7 +214,14 @@ function Home() {
             </div>
           </div>
 
-          {loading ? (
+          {error ? (
+            <div className="error-state">
+              <p className="error-message">{error}</p>
+              <button className="btn btn-primary" onClick={() => { setError(null); searchWorkers(); }}>
+                Try Again
+              </button>
+            </div>
+          ) : loading ? (
             <div className="loading-state">
               <div className="spinner"></div>
               <p>Searching...</p>

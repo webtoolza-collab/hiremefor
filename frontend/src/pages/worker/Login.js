@@ -20,7 +20,11 @@ function WorkerLogin() {
       localStorage.setItem('workerInfo', JSON.stringify(response.data.worker));
       navigate('/worker/dashboard');
     } catch (err) {
-      setError(err.response?.data?.error || 'Login failed');
+      if (!err.response) {
+        setError('Unable to connect to the server. Please check your internet connection.');
+      } else {
+        setError(err.response?.data?.error || 'Login failed');
+      }
     } finally {
       setLoading(false);
     }

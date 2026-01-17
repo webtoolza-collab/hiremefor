@@ -8,6 +8,7 @@ function WorkerDashboard() {
   const [stats, setStats] = useState(null);
   const [pendingRatings, setPendingRatings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem('workerToken');
@@ -19,6 +20,7 @@ function WorkerDashboard() {
   }, [navigate]);
 
   const loadData = async () => {
+    setError(null);
     try {
       const [profileRes, statsRes, ratingsRes] = await Promise.all([
         workerAPI.getProfile(),
@@ -32,6 +34,10 @@ function WorkerDashboard() {
       console.error('Failed to load data:', err);
       if (err.response?.status === 401) {
         navigate('/worker/login');
+      } else if (!err.response) {
+        setError('Unable to connect to the server. Please check your internet connection.');
+      } else {
+        setError('Failed to load data. Please try again.');
       }
     } finally {
       setLoading(false);
@@ -88,6 +94,24 @@ function WorkerDashboard() {
           <div className="spinner"></div>
           <p>Loading...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="profile-page">
+        <header className="profile-header">
+          <Link to="/" className="logo logo-small">HIRE ME FOR</Link>
+        </header>
+        <main className="profile-main">
+          <div className="card" style={{ textAlign: 'center', padding: '3rem', background: '#fef2f2', border: '1px solid #fee2e2' }}>
+            <p style={{ color: '#dc2626', fontWeight: 500, marginBottom: '1rem' }}>{error}</p>
+            <button className="btn btn-primary" onClick={() => { setLoading(true); loadData(); }}>
+              Try Again
+            </button>
+          </div>
+        </main>
       </div>
     );
   }

@@ -173,11 +173,27 @@
 }
 
 .loading-state,
-.empty-state {
+.empty-state,
+.error-state {
   text-align: center;
   padding: 3rem;
   background: white;
   border-radius: 12px;
+}
+
+.error-state {
+  border: 1px solid #fee2e2;
+  background: #fef2f2;
+}
+
+.error-state .error-message {
+  color: #dc2626;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.error-state .btn {
+  margin-top: 0.5rem;
 }
 
 .loading-state .spinner {
