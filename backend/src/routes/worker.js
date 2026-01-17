@@ -75,12 +75,16 @@ router.put('/profile', authenticateWorker, async (req, res) => {
   try {
     const { first_name, surname, age, gender, area_id, bio, email } = req.body;
 
+    // Trim whitespace from text fields
+    const trimmedBio = bio ? bio.trim() : null;
+    const trimmedEmail = email ? email.trim() : null;
+
     // Validation
     if (!first_name || !surname || !age || !gender || !area_id) {
       return res.status(400).json({ error: 'Required fields missing' });
     }
 
-    if (bio && bio.length > 500) {
+    if (trimmedBio && trimmedBio.length > 500) {
       return res.status(400).json({ error: 'Bio must be 500 characters or less' });
     }
 
@@ -92,7 +96,7 @@ router.put('/profile', authenticateWorker, async (req, res) => {
       `UPDATE workers
        SET first_name = ?, surname = ?, age = ?, gender = ?, area_id = ?, bio = ?, email = ?, updated_at = CURRENT_TIMESTAMP
        WHERE id = ?`,
-      [first_name, surname, age, gender, area_id, bio || null, email || null, req.workerId]
+      [first_name.trim(), surname.trim(), age, gender, area_id, trimmedBio || null, trimmedEmail || null, req.workerId]
     );
 
     res.json({ message: 'Profile updated successfully' });
