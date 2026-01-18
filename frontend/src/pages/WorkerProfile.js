@@ -13,6 +13,7 @@ function WorkerProfile() {
   const [rating, setRating] = useState({ stars: 0, comment: '' });
   const [submitting, setSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(null);
 
   useEffect(() => {
     loadWorker();
@@ -174,6 +175,31 @@ function WorkerProfile() {
               {worker.email && <p><strong>Email:</strong> {worker.email}</p>}
             </div>
           </section>
+
+          {/* Work Gallery */}
+          {worker.gallery && worker.gallery.length > 0 && (
+            <section className="profile-section">
+              <h2>Work Gallery ({worker.gallery.length} images)</h2>
+              <div className="gallery-grid">
+                {worker.gallery.map((image, index) => (
+                  <div
+                    key={image.id}
+                    className="gallery-item"
+                    onClick={() => setLightboxIndex(index)}
+                  >
+                    <div className="gallery-item-image">
+                      <img src={image.image_url} alt={image.description || 'Work sample'} />
+                    </div>
+                    {image.description && (
+                      <div className="gallery-item-description">
+                        {image.description}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
 
         {submitSuccess && (
@@ -227,6 +253,47 @@ function WorkerProfile() {
               <p className="modal-note">
                 Note: Your rating will be pending until the worker approves it.
               </p>
+            </div>
+          </div>
+        )}
+
+        {/* Gallery Lightbox */}
+        {lightboxIndex !== null && worker.gallery && worker.gallery[lightboxIndex] && (
+          <div className="lightbox-overlay" onClick={() => setLightboxIndex(null)}>
+            <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
+              <button className="lightbox-close" onClick={() => setLightboxIndex(null)}>
+                &times;
+              </button>
+
+              {lightboxIndex > 0 && (
+                <button
+                  className="lightbox-nav prev"
+                  onClick={() => setLightboxIndex(lightboxIndex - 1)}
+                >
+                  &lsaquo;
+                </button>
+              )}
+
+              <img
+                src={worker.gallery[lightboxIndex].image_url}
+                alt={worker.gallery[lightboxIndex].description || 'Work sample'}
+                className="lightbox-image"
+              />
+
+              {lightboxIndex < worker.gallery.length - 1 && (
+                <button
+                  className="lightbox-nav next"
+                  onClick={() => setLightboxIndex(lightboxIndex + 1)}
+                >
+                  &rsaquo;
+                </button>
+              )}
+
+              {worker.gallery[lightboxIndex].description && (
+                <div className="lightbox-description">
+                  {worker.gallery[lightboxIndex].description}
+                </div>
+              )}
             </div>
           </div>
         )}

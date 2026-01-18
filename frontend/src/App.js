@@ -12,6 +12,7 @@ import WorkerDashboard from './pages/worker/Dashboard';
 import WorkerEditProfile from './pages/worker/EditProfile';
 import WorkerRatings from './pages/worker/Ratings';
 import WorkerForgotPin from './pages/worker/ForgotPin';
+import WorkerGallery from './pages/worker/Gallery';
 
 // Admin Pages
 import AdminLogin from './pages/admin/Login';
@@ -39,6 +40,7 @@ function App() {
         <Route path="/worker/dashboard" element={<WorkerDashboard />} />
         <Route path="/worker/profile/edit" element={<WorkerEditProfile />} />
         <Route path="/worker/ratings" element={<WorkerRatings />} />
+        <Route path="/worker/gallery" element={<WorkerGallery />} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLogin />} />

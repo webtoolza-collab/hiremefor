@@ -152,9 +152,14 @@ function WorkerDashboard() {
               </span>
             </div>
 
-            <Link to="/worker/profile/edit" className="btn btn-primary" style={{ marginTop: '1rem' }}>
-              Edit Profile
-            </Link>
+            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem', flexWrap: 'wrap' }}>
+              <Link to="/worker/profile/edit" className="btn btn-primary">
+                Edit Profile
+              </Link>
+              <Link to="/worker/gallery" className="btn btn-secondary">
+                My Gallery
+              </Link>
+            </div>
           </div>
         </div>
 

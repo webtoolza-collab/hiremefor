@@ -131,11 +131,21 @@ router.get('/:id', async (req, res) => {
       [worker.id]
     );
 
+    // Get gallery images
+    const [gallery] = await db.query(
+      `SELECT id, image_url, description, created_at
+       FROM worker_gallery
+       WHERE worker_id = ?
+       ORDER BY created_at DESC`,
+      [worker.id]
+    );
+
     res.json({
       ...worker,
       skills,
       average_rating: ratingResult[0].average_rating || 0,
-      total_ratings: ratingResult[0].total_ratings || 0
+      total_ratings: ratingResult[0].total_ratings || 0,
+      gallery
     });
   } catch (error) {
     console.error('Get worker error:', error);

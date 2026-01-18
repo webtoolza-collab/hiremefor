@@ -203,6 +203,18 @@ function initializeDatabase() {
     )
   `);
 
+  // Worker gallery table (for showcasing previous work)
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS worker_gallery (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      worker_id INTEGER NOT NULL,
+      image_url VARCHAR(500) NOT NULL,
+      description VARCHAR(200),
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (worker_id) REFERENCES workers(id) ON DELETE CASCADE
+    )
+  `);
+
   console.log('Database schema initialized');
 
   // Seed initial data if tables are empty

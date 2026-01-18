@@ -409,4 +409,122 @@ router.post('/register', async (req, res) => {
   }
 });
 
+// ============ GALLERY ENDPOINTS ============
+
+// GET /api/worker/gallery - Get worker's gallery images
+router.get('/gallery', authenticateWorker, async (req, res) => {
+  try {
+    const [images] = await db.query(
+      `SELECT * FROM worker_gallery WHERE worker_id = ? ORDER BY created_at DESC`,
+      [req.workerId]
+    );
+    res.json(images);
+  } catch (error) {
+    console.error('Get gallery error:', error);
+    res.status(500).json({ error: 'Failed to get gallery' });
+  }
+});
+
+// POST /api/worker/gallery - Upload gallery image
+router.post('/gallery', authenticateWorker, upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No image uploaded' });
+    }
+
+    // Check if worker has reached the 30 image limit
+    const [countResult] = await db.query(
+      'SELECT COUNT(*) as count FROM worker_gallery WHERE worker_id = ?',
+      [req.workerId]
+    );
+
+    if (countResult[0].count >= 30) {
+      return res.status(400).json({ error: 'Maximum 30 images allowed. Please delete some images first.' });
+    }
+
+    const description = req.body.description ? req.body.description.trim().substring(0, 200) : null;
+
+    // Process image and save
+    const filename = `gallery_${req.workerId}_${Date.now()}.jpg`;
+    const filepath = path.join(__dirname, '../../uploads', filename);
+
+    await sharp(req.file.buffer)
+      .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
+      .jpeg({ quality: 85 })
+      .toFile(filepath);
+
+    const imageUrl = `/uploads/${filename}`;
+
+    // Insert into database
+    const [result] = await db.query(
+      'INSERT INTO worker_gallery (worker_id, image_url, description) VALUES (?, ?, ?)',
+      [req.workerId, imageUrl, description]
+    );
+
+    res.status(201).json({
+      message: 'Image uploaded successfully',
+      id: result.insertId,
+      image_url: imageUrl,
+      description: description
+    });
+  } catch (error) {
+    console.error('Upload gallery image error:', error);
+    res.status(500).json({ error: 'Failed to upload image' });
+  }
+});
+
+// PUT /api/worker/gallery/:id - Update gallery image description
+router.put('/gallery/:id', authenticateWorker, async (req, res) => {
+  try {
+    const { description } = req.body;
+    const trimmedDescription = description ? description.trim().substring(0, 200) : null;
+
+    const [result] = await db.query(
+      'UPDATE worker_gallery SET description = ? WHERE id = ? AND worker_id = ?',
+      [trimmedDescription, req.params.id, req.workerId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Image not found' });
+    }
+
+    res.json({ message: 'Description updated successfully' });
+  } catch (error) {
+    console.error('Update gallery image error:', error);
+    res.status(500).json({ error: 'Failed to update image description' });
+  }
+});
+
+// DELETE /api/worker/gallery/:id - Delete gallery image
+router.delete('/gallery/:id', authenticateWorker, async (req, res) => {
+  try {
+    // Get image path first
+    const [images] = await db.query(
+      'SELECT image_url FROM worker_gallery WHERE id = ? AND worker_id = ?',
+      [req.params.id, req.workerId]
+    );
+
+    if (images.length === 0) {
+      return res.status(404).json({ error: 'Image not found' });
+    }
+
+    // Delete from database
+    await db.query(
+      'DELETE FROM worker_gallery WHERE id = ? AND worker_id = ?',
+      [req.params.id, req.workerId]
+    );
+
+    // Delete file from disk
+    const imagePath = path.join(__dirname, '../..', images[0].image_url);
+    if (fs.existsSync(imagePath)) {
+      fs.unlinkSync(imagePath);
+    }
+
+    res.json({ message: 'Image deleted successfully' });
+  } catch (error) {
+    console.error('Delete gallery image error:', error);
+    res.status(500).json({ error: 'Failed to delete image' });
+  }
+});
+
 module.exports = router;

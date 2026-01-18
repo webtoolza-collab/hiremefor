@@ -78,7 +78,14 @@ export const workerAPI = {
   acceptRating: (id) => api.put(`/worker/ratings/${id}/accept`),
   rejectRating: (id) => api.delete(`/worker/ratings/${id}`),
   getStats: () => api.get('/worker/stats'),
-  register: (data) => api.post('/worker/register', data)
+  register: (data) => api.post('/worker/register', data),
+  // Gallery endpoints
+  getGallery: () => api.get('/worker/gallery'),
+  uploadGalleryImage: (formData) => api.post('/worker/gallery', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  updateGalleryImage: (id, description) => api.put(`/worker/gallery/${id}`, { description }),
+  deleteGalleryImage: (id) => api.delete(`/worker/gallery/${id}`)
 };
 
 // Search API
