@@ -9,12 +9,12 @@ const BULKSMS_API_URL = 'https://api.bulksms.com/v1/messages';
  * @returns {Promise<object>} - API response
  */
 async function sendSMS(phoneNumber, message) {
-  const tokenId = process.env.BULKSMS_TOKEN_ID;
-  const tokenSecret = process.env.BULKSMS_TOKEN_SECRET;
+  const username = process.env.BULKSMS_USERNAME;
+  const password = process.env.BULKSMS_PASSWORD;
   const senderId = process.env.BULKSMS_SENDER_ID || 'HireMeFor';
 
   // Development mode: log to console instead of sending
-  if (!tokenId || !tokenSecret || tokenId === 'your_token_id_here') {
+  if (!username || !password || username === 'your_username_here') {
     console.log('\n========================================');
     console.log('  SMS (Development Mode - Not Sent)');
     console.log('========================================');
@@ -39,8 +39,8 @@ async function sendSMS(phoneNumber, message) {
       },
       {
         auth: {
-          username: tokenId,
-          password: tokenSecret
+          username: username,
+          password: password
         },
         headers: {
           'Content-Type': 'application/json'
