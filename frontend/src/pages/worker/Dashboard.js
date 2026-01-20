@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { QRCodeSVG } from 'qrcode.react';
 import { workerAPI, authAPI } from '../../services/api';
 
 function WorkerDashboard() {
@@ -230,6 +231,41 @@ function WorkerDashboard() {
             </div>
           )}
         </div>
+
+        {/* QR Code for Profile Sharing */}
+        {profile?.id && (
+          <div className="card" style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+            <h3 style={{ marginBottom: '1rem' }}>Share Your Profile</h3>
+            <p style={{ color: '#6b7280', marginBottom: '1rem', fontSize: '0.875rem' }}>
+              Show this QR code to potential clients so they can quickly view your profile
+            </p>
+            <div style={{
+              display: 'inline-block',
+              padding: '1rem',
+              background: 'white',
+              borderRadius: '12px',
+              border: '2px solid #e5e7eb',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
+            }}>
+              <QRCodeSVG
+                value={`${window.location.origin}/workers/${profile.id}`}
+                size={180}
+                level="M"
+                includeMargin={false}
+                bgColor="#ffffff"
+                fgColor="#1f2937"
+              />
+            </div>
+            <p style={{
+              color: '#9ca3af',
+              fontSize: '0.75rem',
+              marginTop: '1rem',
+              fontStyle: 'italic'
+            }}>
+              Scan to view my profile
+            </p>
+          </div>
+        )}
       </main>
     </div>
   );
