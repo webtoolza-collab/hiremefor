@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { QRCodeSVG } from 'qrcode.react';
 import { searchAPI } from '../services/api';
 import './WorkerProfile.css';
 
@@ -200,6 +201,23 @@ function WorkerProfile() {
               </div>
             </section>
           )}
+
+          {/* QR Code for Profile Sharing */}
+          <section className="profile-section qr-section">
+            <h2>Share this Profile</h2>
+            <div className="qr-code-container">
+              <QRCodeSVG
+                value={`${window.location.origin}/workers/${id}`}
+                size={300}
+                level="M"
+                includeMargin={false}
+                bgColor="#ffffff"
+                fgColor="#000000"
+                className="qr-code"
+              />
+              <p className="qr-hint">Scan to view this worker's profile</p>
+            </div>
+          </section>
         </div>
 
         {submitSuccess && (
