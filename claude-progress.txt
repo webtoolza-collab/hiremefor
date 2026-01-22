@@ -1,5 +1,48 @@
 # Hire Me For - Development Progress
 
+## Session 66 Summary (Coding Agent) - FEATURE IMPLEMENTATION
+Date: 2026-01-22
+
+### Tasks Completed
+
+1. **Feature #128: Display Accepted Ratings on Profile** ✅
+   - **Backend Changes** (`backend/src/routes/search.js`):
+     - Added query to fetch accepted ratings with comments
+     - Returns `accepted_ratings` array in worker profile API response
+     - Ratings ordered by reviewed_at DESC, then created_at DESC (newest first)
+
+   - **Frontend Changes** (`frontend/src/pages/WorkerProfile.js`):
+     - Added Reviews section that displays when worker has accepted ratings
+     - Shows star rating, date, and comment for each review
+     - Section hidden when no accepted ratings exist
+
+   - **CSS Styling** (`frontend/src/pages/WorkerProfile.css`):
+     - Added `.reviews-list`, `.review-item`, `.review-header` styles
+     - Star ratings display inline with date
+     - Comment text styled with proper line height
+
+   - **Testing Verified**:
+     - Worker with 1 rating (Andrew Miller ID 41): Shows Reviews (1) section ✅
+     - Worker with 9 ratings (John TestWorker ID 1): Shows Reviews (9) section ✅
+     - Worker with no ratings (Andrew Taylor ID 81): No Reviews section shown ✅
+     - Submitted new pending rating: Does NOT appear in Reviews until accepted ✅
+     - No console errors ✅
+
+### Feature Statistics
+- Total Features: 128
+- Passing: 128
+- In Progress: 0
+- Completion: 100%
+
+### Test Credentials
+- **Worker 1:** Phone: 0821234567, PIN: 4321
+  - Profile: John TestWorker, Johannesburg2, 38 years
+  - Skills: Plumber (5 yrs), Taxi Driver (3 yrs), Electrician (3 yrs)
+  - Rating: 3.3 (9 ratings)
+- **Admin:** Username: admin, Password: admin123
+
+---
+
 ## Session 65 Summary (Coding Agent) - MAINTENANCE CHECK
 Date: 2026-01-21
 
