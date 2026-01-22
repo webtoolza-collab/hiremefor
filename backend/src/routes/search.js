@@ -140,12 +140,22 @@ router.get('/:id', async (req, res) => {
       [worker.id]
     );
 
+    // Get accepted ratings with comments
+    const [acceptedRatings] = await db.query(
+      `SELECT id, stars, comment, created_at, reviewed_at
+       FROM ratings
+       WHERE worker_id = ? AND status = 'accepted'
+       ORDER BY reviewed_at DESC, created_at DESC`,
+      [worker.id]
+    );
+
     res.json({
       ...worker,
       skills,
       average_rating: ratingResult[0].average_rating || 0,
       total_ratings: ratingResult[0].total_ratings || 0,
-      gallery
+      gallery,
+      accepted_ratings: acceptedRatings
     });
   } catch (error) {
     console.error('Get worker error:', error);

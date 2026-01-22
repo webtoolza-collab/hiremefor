@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { searchAPI } from '../services/api';
 import './WorkerProfile.css';
+// Feature #128: Display Accepted Ratings on Profile
 
 function WorkerProfile() {
   const { id } = useParams();
@@ -176,6 +177,30 @@ function WorkerProfile() {
               {worker.email && <p><strong>Email:</strong> {worker.email}</p>}
             </div>
           </section>
+
+          {/* Accepted Ratings/Reviews */}
+          {worker.accepted_ratings && worker.accepted_ratings.length > 0 && (
+            <section className="profile-section">
+              <h2>Reviews ({worker.accepted_ratings.length})</h2>
+              <div className="reviews-list">
+                {worker.accepted_ratings.map((review) => (
+                  <div key={review.id} className="review-item">
+                    <div className="review-header">
+                      <div className="review-stars">
+                        {renderStars(review.stars)}
+                      </div>
+                      <span className="review-date">
+                        {new Date(review.reviewed_at || review.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                    {review.comment && (
+                      <p className="review-comment">{review.comment}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* Work Gallery */}
           {worker.gallery && worker.gallery.length > 0 && (
