@@ -220,7 +220,7 @@ function WorkerEditProfile() {
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
               {photoUrl ? (
                 <img
-                  src={photoUrl.startsWith('/') ? `http://localhost:3001${photoUrl}` : photoUrl}
+                  src={photoUrl}
                   alt="Profile"
                   className="profile-photo"
                   style={{ width: '150px', height: '150px', objectFit: 'cover' }}

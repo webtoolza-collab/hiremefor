@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authAPI, workerAPI, autocompleteAPI } from '../../services/api';
+import Autocomplete from '../../components/Autocomplete';
 
 function WorkerRegister() {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ function WorkerRegister() {
     area_id: '',
     bio: '',
     email: '',
-    skills: []
+    skills: [{ skill_id: null, years_experience: 0 }]
   });
 
   useEffect(() => {
@@ -98,14 +99,42 @@ function WorkerRegister() {
     }
   };
 
-  const handleSkillChange = (skillId, checked, yearsExperience = 0) => {
+  // Handle skill selection in a row
+  const handleSkillSelect = (index, skillId) => {
     setProfile(prev => {
-      const existingSkills = prev.skills.filter(s => s.skill_id !== skillId);
-      if (checked) {
-        return { ...prev, skills: [...existingSkills, { skill_id: skillId, years_experience: yearsExperience }] };
+      const newSkills = [...prev.skills];
+      if (skillId) {
+        newSkills[index] = { ...newSkills[index], skill_id: parseInt(skillId) };
+      } else {
+        newSkills[index] = { ...newSkills[index], skill_id: null };
       }
-      return { ...prev, skills: existingSkills };
+      return { ...prev, skills: newSkills };
     });
+  };
+
+  // Handle years of experience change
+  const handleYearsChange = (index, years) => {
+    setProfile(prev => {
+      const newSkills = [...prev.skills];
+      newSkills[index] = { ...newSkills[index], years_experience: years };
+      return { ...prev, skills: newSkills };
+    });
+  };
+
+  // Add a new skill entry row
+  const handleAddSkill = () => {
+    setProfile(prev => ({
+      ...prev,
+      skills: [...prev.skills, { skill_id: null, years_experience: 0 }]
+    }));
+  };
+
+  // Remove a skill entry row
+  const handleRemoveSkill = (index) => {
+    setProfile(prev => ({
+      ...prev,
+      skills: prev.skills.filter((_, i) => i !== index)
+    }));
   };
 
   const handleSubmitProfile = async (e) => {
@@ -113,11 +142,22 @@ function WorkerRegister() {
     setError('');
     setLoading(true);
 
+    // Filter out empty skill rows (those with no skill selected)
+    const validSkills = profile.skills.filter(s => s.skill_id !== null && s.skill_id !== '');
+
+    // Validate at least one skill is selected
+    if (validSkills.length === 0) {
+      setError('Please select at least one skill');
+      setLoading(false);
+      return;
+    }
+
     try {
       await workerAPI.register({
         phone_number: phone,
         pin_hash: pinHash,
         ...profile,
+        skills: validSkills,
         age: parseInt(profile.age),
         area_id: parseInt(profile.area_id)
       });
@@ -315,30 +355,58 @@ function WorkerRegister() {
               </div>
 
               <div className="form-group">
-                <label>Skills *</label>
-                <div style={{ border: '1px solid #d1d5db', borderRadius: '8px', maxHeight: '200px', overflowY: 'auto' }}>
-                  {skills.map(skill => (
-                    <div key={skill.id} className="skill-checkbox">
-                      <input
-                        type="checkbox"
-                        id={`skill-${skill.id}`}
-                        checked={profile.skills.some(s => s.skill_id === skill.id)}
-                        onChange={(e) => handleSkillChange(skill.id, e.target.checked)}
-                      />
-                      <label htmlFor={`skill-${skill.id}`} style={{ flex: 1 }}>{skill.name}</label>
-                      {profile.skills.some(s => s.skill_id === skill.id) && (
-                        <input
-                          type="number"
-                          min="0"
-                          max="50"
-                          placeholder="Years"
-                          style={{ width: '80px' }}
-                          value={profile.skills.find(s => s.skill_id === skill.id)?.years_experience || 0}
-                          onChange={(e) => handleSkillChange(skill.id, true, parseInt(e.target.value) || 0)}
-                        />
-                      )}
-                    </div>
-                  ))}
+                <label>Skills * <span style={{ fontWeight: 'normal', fontSize: '0.875rem', color: '#6b7280' }}>(at least one required)</span></label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  {profile.skills.map((skill, index) => {
+                    // Get available skills (exclude already selected skills except current one)
+                    const selectedSkillIds = profile.skills.map(s => s.skill_id).filter(id => id !== skill.skill_id);
+                    const availableSkills = skills.filter(s => !selectedSkillIds.includes(s.id));
+
+                    return (
+                      <div key={index} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end' }}>
+                        <div style={{ flex: 1 }}>
+                          <Autocomplete
+                            label=""
+                            options={availableSkills}
+                            value={skill.skill_id ? skill.skill_id.toString() : ''}
+                            onChange={(value) => handleSkillSelect(index, value)}
+                            placeholder="Search skills..."
+                            allLabel="Select a skill..."
+                          />
+                        </div>
+                        <div style={{ width: '100px' }}>
+                          <input
+                            type="number"
+                            min="0"
+                            max="50"
+                            placeholder="Years exp."
+                            value={skill.years_experience || 0}
+                            onChange={(e) => handleYearsChange(index, parseInt(e.target.value) || 0)}
+                            style={{ width: '100%', height: '42px' }}
+                          />
+                        </div>
+                        {profile.skills.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveSkill(index)}
+                            className="btn btn-danger"
+                            style={{ padding: '0.5rem 0.75rem', height: '42px' }}
+                            aria-label="Remove skill"
+                          >
+                            ×
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                  <button
+                    type="button"
+                    onClick={handleAddSkill}
+                    className="btn btn-secondary"
+                    style={{ alignSelf: 'flex-start' }}
+                  >
+                    + Add another skill
+                  </button>
                 </div>
               </div>
 
@@ -368,7 +436,7 @@ function WorkerRegister() {
                 />
               </div>
 
-              <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={loading || profile.skills.length === 0}>
+              <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={loading || !profile.skills.some(s => s.skill_id !== null)}>
                 {loading ? <span className="spinner"></span> : 'Complete Registration'}
               </button>
             </form>
